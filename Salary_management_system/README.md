@@ -1,1 +1,1 @@
-adoasodnaso
+npm init
