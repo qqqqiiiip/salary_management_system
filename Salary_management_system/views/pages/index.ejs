@@ -1,0 +1,500 @@
+<!-- views/pages/index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+<script src="js/jquery-1.10.2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/css.css">
+<link href="css/bootstrap.min.css" rel="stylesheet">
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/vue.js"></script>
+<script type="text/javascript" src="js/js.js"></script>
+</head>
+<script type="text/javascript"></script>
+<body>
+
+    <header id="log">
+        <% include ../partials/header %>
+    </header>
+    
+    <main  id="q">
+        <ul class="nav nav-pills " role="tablist">
+          <li id="x" role="presentation" class="col-md-3" v-on:click="show_baseMessage(1)"><a href="#">员工信息</a></li>
+          <li id="y" role="presentation" class="col-md-3" v-on:click="show_baseMessage(2)"><a href="#">考勤信息</a></li>
+          <li role="presentation" class="col-md-3" v-on:click="show_baseMessage(3)"><a href="#">工资信息</a></li>
+          <li id="r" role="presentation" class="col-md-2" v-on:click="show_baseMessage(4)"><a href="#">基本配置</a></li>
+        </ul>
+        <div id="demo1" align="center" style="display: none;margin-top: 30px">
+            <button class="btn btn-success btn-sm col-md-1" title="新增员工" id="add" 
+            data-container="body" data-toggle="popover" data-placement="right"  data-html="true"
+            data-content="
+            <div class='c'>
+            姓名<input style='margin-bottom:5px' type='' id='new_name' onchange='x(1,this.value)'></br>
+            上级员工编号<input style='margin-bottom:5px' type='' id='new_superior_id' onchange='x(2,this.value)' ></br>
+            所在部门编号<input style='margin-bottom:5px' type='' id='new_department_id' onchange='x(3,this.value)'></br>
+            <button type='' class='btn btn-primary btn-sm' style='float:right' onclick='add()'  >增加</button>
+            </div>
+            " style="left: 5%">新增员工</button>
+
+            <span style="position:absolute;right: 10%;" class=" form-group">
+                <select class="btn btn-success btn-sm" id="search_type_1">
+                    <option value="1">编号</option>
+                    <option value="2">姓名</option>
+                    <option value="3">上级编号</option>
+                    <option value="4">部门编号</option>
+                </select>
+                <input id="search_content_1" style="width: 200px;margin-top: 3px;padding-bottom: 5px">
+                <button v-on:click="search(1)" class="btn btn-primary btn-sm">搜索</button>
+            </span><br><br>
+            <div>
+                <table id="table1" class="table table-hover" style="width: 90%;">
+                    <thead>
+                        <tr>
+                        <th>序号</th>
+                        <th>员工编号</th>
+                        <th>员工姓名</th>
+                        <th>上级员工编号</th>
+                        <th>所在部门编号</th>
+                        <th>基本工资</th>
+                        <th>住房补贴</th>
+                        <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="inf in information">
+                        <td>{{$index+1}}</td>
+                        <td>{{inf.id}}</td>
+                        <td><input id="xx" readonly="true" value="{{inf.name}}" v-model="inf.name"></td>
+                        <td><input readonly="true" v-model="inf.superior_id"></td>
+                        <td><input readonly="true" v-model="inf.department_id"></td>
+                        <td><input readonly="true" v-model="inf.base_wage"></td>
+                        <td><input readonly="true" v-model="inf.House_wage"></td>
+                        <td>
+                            
+                            <button id="edit" class="btn btn-primary btn-xs" v-on:click="edit(1,$index)">修改</button>
+                            <button id="save" class="btn btn-success btn-xs" style="display:none;" v-on:click="save(1,$index)">保存</button>
+                            <button class="btn btn-danger btn-xs" v-on:click="delete(1,$index)">删除</button>
+
+                        </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-success btn-sm col-md-1" style="margin-left: 5%;display: none;" onclick="method5(table1)">导出到EXCEL</button>
+        </div>
+        <div id="demo2" align="center" style="display: none;margin-top: 30px">
+            
+            <select id="select_0" class="btn btn-primary btn-sm col-md-1" style="margin-left: 5%"  >
+                <option v-for="inf in information">{{inf.id}}-{{inf.name}}-{{inf.department_id}}</option>
+            </select>
+            <span class="btn btn-success btn-sm col-md-1" v-on:click='add' style="margin-left: 10px">增加考勤信息</span>
+            <span style="position:absolute;right: 10%;" class=" form-group">
+                <select class="btn btn-success btn-sm" id="search_type_2">
+                    <option value="5">编号</option>
+                    <option value="2">姓名</option>
+                    <option value="6">部门编号</option>
+                    <option value="7">年份</option>
+                    <option value="8">月份</option>
+                </select>
+                <input id="search_content_2" style="width: 200px;margin-top: 3px;margin-right:5px;padding-bottom: 5px"><button v-on:click="search(2)" class="btn btn-primary btn-sm">搜索</button>
+            </span><br><br>
+             <div >
+                <table class="table table-hover" style="width: 900px">
+                    <thead>
+                        <tr>
+                        <th>编号</th>
+                        <th>姓名</th>
+                        <th>部门</th>
+                        <th>年份</th>
+                        <th>月份</th>
+                        <th>迟到/天</th>
+                        <th>早退/天</th>
+                        <th>请假/天</th>
+                        <th>加班/小时</th>
+                        <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="inf in wage_information">
+                        <td>{{inf.e_id}}</td>
+                        <td>{{inf.name}}</td>
+                        <td>{{inf.d_id}}</td>
+                        <td><input readonly="true" v-model="inf.year"></td>
+                        <td><input readonly="true" v-model="inf.month"></td>
+                        <td><input readonly="true" v-model="inf.late_days"></td>
+                        <td><input readonly="true" v-model="inf.leave_days"></td>
+                        <td><input readonly="true" v-model="inf.ask_days"></td>
+                        <td><input readonly="true" v-model="inf.over_hours"></td>
+                        <td>
+                            
+                            <button id="edit" class="btn btn-primary btn-xs" v-on:click="edit(2,$index)">修改</button>
+                            <button id="save" class="btn btn-success btn-xs" style="display:none;" v-on:click="save(2,$index)">保存</button>
+                            <button class="btn btn-danger btn-xs" v-on:click="delete(2,$index)">删除</button>
+
+                        </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="demo3" align="center" style="display: none;margin-top: 30px">
+            <span style="position:absolute;right: 10%;" class=" form-group">
+                <select class="btn btn-success btn-sm" id="search_type_3">
+                    <option value="5">编号</option>
+                    <option value="2">姓名</option>
+                    <option value="6">部门编号</option>
+                    <option value="7">年份</option>
+                    <option value="8">月份</option>
+                </select>
+                <input id="search_content_3" style="width: 200px;margin-right: 5px;margin-top: 3px;padding-bottom: 5px"><button v-on:click="search(3)" class="btn btn-primary btn-sm">搜索</button>
+            </span><br><br>
+             <div >
+                <table class="table table-hover" style="width: 900px">
+                    <thead>
+                        <tr>
+                        <th>编号</th>
+                        <th>姓名</th>
+                        <th>部门</th>
+                        <th>年份</th>
+                        <th>月份</th>
+                        <th>基本工资</th>
+                        <th>住房补贴</th>
+                        <th>应发金额</th>
+                        <th>应扣金额</th>
+                        <th>实发金额</th>
+                        <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="inf in wage_information">
+                        <td>{{inf.e_id}}</td>
+                        <td>{{inf.name}}</td>
+                        <td>{{inf.d_id}}</td>
+                        <td>{{inf.year}}</td>
+                        <td>{{inf.month}}</td>
+                        <td><input readonly="true" v-model="inf.base_wage"></td>
+                        <td><input readonly="true" v-model="inf.House_wage"></td>
+                        <td>{{inf.should_wage}}</td>
+                        <td>{{inf.shouldnot_wage}}</td>
+                        <td>{{inf.real_wage}}</td>
+                        <td>
+                            
+                            <button id="edit" class="btn btn-primary btn-xs" v-on:click="edit(3,$index)">修改</button>
+                            <button id="save" class="btn btn-success btn-xs" style="display:none;" v-on:click="save(3,$index)">保存</button>
+                            <button class="btn btn-danger btn-xs" v-on:click="delete(3,$index)">删除</button>
+
+                        </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div id="demo4" align="center" style="display: none;margin-top: 30px">
+             <div >
+                <table class="table table-hover" style="width: 80%">
+                    <thead>
+                        <tr>
+                        <th>月基本工作天数</th>
+                        <th>迟到扣工资</th>
+                        <th>早退扣工资</th>
+                        <th>请假扣工资</th>
+                        <th>加班补发工资/小时</th>
+                        <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="inf in config">
+                        <td><input readonly="true" v-model="inf.base_days"></td>
+                        <td><input readonly="true" v-model="inf.late_wage"></td>
+                        <td><input readonly="true" v-model="inf.leave_wage"></td>
+                        <td><input readonly="true" v-model="inf.ask_wage"></td>
+                        <td><input readonly="true" v-model="inf.over_wage"></td>
+                        <td>
+                            
+                            <button id="edit" class="btn btn-primary btn-xs" v-on:click="edit(4,$index)">修改</button>
+                            <button id="save" class="btn btn-success btn-xs" style="display:none;" v-on:click="save(4,$index)">保存</button>
+
+                        </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <% include ../partials/footer %>
+    </footer>
+
+</body>
+
+<script type="text/javascript">
+    $("#log a").css("display","inline-block");
+
+    //增加员工 start
+    var new_name,new_department_id,new_superior_id;
+
+    function x(q,v) {
+        if(q==1){
+            new_name = v;
+        }else if(q == 2){
+            new_superior_id = v;
+        }else{
+            new_department_id = v;
+        }
+    }
+    function isInteger(x) {
+        if(x>0&&x<100){
+            return true;
+        }
+        return false;
+    }
+    function add() {
+        if(new_name==""||!isInteger(new_department_id)||!isInteger(new_superior_id)){
+            alert('信息有误');
+            return ;
+        }
+        $.ajax({
+                type:'post',  
+                url:"/add_new", 
+                data:{
+                'name':new_name,
+                'superior_id':new_superior_id,
+                'department_id':new_department_id
+                },
+                dataType: 'json',
+                success:function(data){
+                    
+                }
+            }); 
+        $("#x").click();
+        $('#add').popover('hide');
+    }
+    
+    $(function () { 
+    $("[data-toggle='popover']").popover();
+    });
+    //增加员工 end
+    
+
+    var app = new Vue({
+      el: '#q',
+      data: {
+        seen:0,
+        information: '',
+        wage_information:'',
+        config:''
+      },
+      methods: {
+        show_baseMessage: function (x) {
+            var vm = this;
+            var n = vm.seen+1;
+            $("#q ul li").eq(vm.seen).removeClass('active');
+            $("#q ul li").eq(x-1).addClass('active');
+            $("#demo"+n).css("display","none");
+            $("#demo"+x).css("display","block");
+            vm.seen = x-1;
+            $.ajax({
+                type:'post',  
+                url:"/show_inf", 
+                data:{"type":x},
+                dataType: 'json',
+                success:function(data){
+                    if(x == 1){
+                        vm.information = data;
+                    }else if(x == 2 || x == 3){
+                        vm.wage_information = data;
+                    }else if(x == 4){
+                        vm.config = data;
+                    }
+                    
+                }
+            });
+        },
+        cal:function (index) {
+            for (var i = this.wage_information.length - 1; i >= 0; i--) {
+                this.wage_information[i].shouldnot_wage = Number(this.wage_information[i].late_days)*Number(this.config[0].late_wage)+Number(this.wage_information[i].leave_days)*Number(this.config[0].leave_wage)+Number(this.wage_information[i].ask_days)*Number(this.config[0].ask_wage);
+                this.wage_information[i].should_wage = Number(this.wage_information[i].over_hours)*Number(this.config[0].over_wage)+Number(this.wage_information[i].base_wage)+Number(this.wage_information[i].House_wage);
+                this.wage_information[i].real_wage = Number(this.wage_information[i].should_wage) - Number(this.wage_information[i].shouldnot_wage);
+                this.save(3,i);
+            }
+           
+        },
+        add:function (index) {
+            var id = $("#select_0").val().split("-")[0];
+            var name = $("#select_0").val().split("-")[1];
+            var department_id = $("#select_0").val().split("-")[2];
+            $.ajax({
+                type:'post',  
+                url:"/add", 
+                data:{'id':id,"name":name,"department_id":department_id},
+                dataType: 'json',
+                success:function(data){
+                    // vm.information.pop();
+                    // alert(data)
+                }
+            });
+            setTimeout("$('#y').click()",10);
+            
+        },
+        delete:function (i,index) {
+            var x;
+            if(i == 1){
+                x = this.information[index].id;
+            }else if(i == 2 || i == 3){
+                x = this.wage_information[index].id;
+            }
+            var vm = this;
+            $.ajax({
+                type:'post',  
+                url:"/delete", 
+                data:{'id':x,"type":i},
+                dataType: 'json',
+                success:function(data){
+                    // vm.information.pop();
+                    // alert(data)
+                }
+            });
+            if(i == 1){
+                vm.information.splice(index, 1);
+                $('#x').click();
+            }else if(i == 2 || i == 3){
+                vm.wage_information.splice(index, 1);
+            }
+        },
+        search:function (x) {
+            var vm = this;
+            var type = $("#search_type_"+x).val();
+            var content = $("#search_content_"+x).val();
+            $.ajax({
+                type:'post',  
+                url:"/search", 
+                data:{"type":type,"content":content,"x":x},
+                dataType: 'json',
+                success:function(data){
+                    if(x == 1){
+                        vm.information = data;
+                    }else if(x ==2 || x == 3){
+                        vm.wage_information = data;
+                    }
+                    
+                }
+            });
+        },
+        edit:function (i,index) {
+            $("#demo"+i+" table #edit").eq(index).css("display","none");
+            $("#demo"+i+" table #save").eq(index).css("display","inline-block");
+            $("#demo"+i+" table tbody tr:eq("+index+") input").attr("readonly",false);
+            $("#demo"+i+" table tbody tr:eq("+index+") input").css("border-color","lightblue");
+
+        },
+        save:function (i,index) {
+            $("#demo"+i+" table #edit").eq(index).css("display","inline-block");
+            $("#demo"+i+" table #save").eq(index).css("display","none");
+            $("#demo"+i+" table tbody tr:eq("+index+") input").attr("readonly",true);
+            $("#demo"+i+" table tbody tr:eq("+index+") input").css("border-color","transparent");
+            if(i == 1){
+                var d = this.information[index];
+            }else if(i == 2){
+                var d = this.wage_information[index];
+            }else if(i == 3){
+                this.wage_information[index].shouldnot_wage = Number(this.wage_information[index].late_days)*Number(this.config[0].late_wage)+Number(this.wage_information[index].leave_days)*Number(this.config[0].leave_wage)+Number(this.wage_information[index].ask_days)*Number(this.config[0].ask_wage);
+                this.wage_information[index].should_wage = Number(this.wage_information[index].over_hours)*Number(this.config[0].over_wage)+Number(this.wage_information[index].base_wage)+Number(this.wage_information[index].House_wage);
+                this.wage_information[index].real_wage = Number(this.wage_information[index].should_wage) - Number(this.wage_information[index].shouldnot_wage);
+                var d = this.wage_information[index];
+            }else if(i == 4){
+                var d = this.config[index];
+                this.cal();
+            }
+            d['type'] = i;
+            $.ajax({
+                type:'post',  
+                url:"/save", 
+                data:d,
+                dataType: 'json',
+                success:function(data){
+
+                }
+            });
+        },
+
+
+      }
+    })
+    // var idTmr;  
+    //     function  getExplorer() {  
+    //         var explorer = window.navigator.userAgent ;  
+    //         //ie  
+    //         if (explorer.indexOf("MSIE") >= 0) {  
+    //             return 'ie';  
+    //         }  
+    //         //firefox  
+    //         else if (explorer.indexOf("Firefox") >= 0) {  
+    //             return 'Firefox';  
+    //         }  
+    //         //Chrome  
+    //         else if(explorer.indexOf("Chrome") >= 0){  
+    //             return 'Chrome';  
+    //         }  
+    //         //Opera  
+    //         else if(explorer.indexOf("Opera") >= 0){  
+    //             return 'Opera';  
+    //         }  
+    //         //Safari  
+    //         else if(explorer.indexOf("Safari") >= 0){  
+    //             return 'Safari';  
+    //         }  
+    //     }  
+    //     function method5(tableid) {  
+    //         if(getExplorer()=='ie')  
+    //         {  
+    //             var curTbl = document.getElementById(tableid);  
+    //             var oXL = new ActiveXObject("Excel.Application");  
+    //             var oWB = oXL.Workbooks.Add();  
+    //             var xlsheet = oWB.Worksheets(1);  
+    //             var sel = document.body.createTextRange();  
+    //             sel.moveToElementText(curTbl);  
+    //             sel.select();  
+    //             sel.execCommand("Copy");  
+    //             xlsheet.Paste();  
+    //             oXL.Visible = true;  
+  
+    //             try {  
+    //                 var fname = oXL.Application.GetSaveAsFilename("Excel.xls", "Excel Spreadsheets (*.xls), *.xls");  
+    //             } catch (e) {  
+    //                 print("Nested catch caught " + e);  
+    //             } finally {  
+    //                 oWB.SaveAs(fname);  
+    //                 oWB.Close(savechanges = false);  
+    //                 oXL.Quit();  
+    //                 oXL = null;  
+    //                 idTmr = window.setInterval("Cleanup();", 1);  
+    //             }  
+  
+    //         }  
+    //         else  
+    //         {  
+    //             tableToExcel(tableid)  
+    //         }  
+    //     }  
+    //     function Cleanup() {  
+    //         window.clearInterval(idTmr);  
+    //         CollectGarbage();  
+    //     }  
+    //     var tableToExcel = (function() {  
+    //         var uri = 'data:application/vnd.ms-excel;base64,',  
+    //                 template = '<html><head><meta charset="UTF-8"></head><body><table>{table}</table></body></html>',  
+    //                 base64 = function(s) { return window.btoa(unescape(encodeURIComponent(s))) },  
+    //                 format = function(s, c) {  
+    //                     return s.replace(/{(\w+)}/g,  
+    //                             function(m, p) { return c[p]; }) }  
+    //         return function(table, name) {  
+    //             if (!table.nodeType) table = document.getElementById(table)  
+    //             var ctx = {worksheet: name || 'Worksheet', table: table.innerHTML}  
+    //             window.location.href = uri + base64(format(template, ctx))  
+    //         }  
+    //     })()  
+    $("#r").click();
+    $("#x").click();
+</script>
+</html>
