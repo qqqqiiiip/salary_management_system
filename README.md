@@ -1,4 +1,7 @@
-# 工资管理系统：
-nodejs+vue.js+mysql
-# 一站式服务大厅
-php+mysql
+#cd Salary_management_system
+
+#npm update
+
+#node server.js
+
+#nodejs+mysql
